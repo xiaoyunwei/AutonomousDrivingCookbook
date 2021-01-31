@@ -4,6 +4,12 @@ import keras.backend as K
 import os
 import cv2
 
+def flip_axis(x, axis):
+    x = np.asarray(x).swapaxes(axis, 0)
+    x = x[::-1, ...]
+    x = x.swapaxes(0, axis)
+    return x
+
 class DriveDataGenerator(image.ImageDataGenerator):
     def __init__(self,
                  featurewise_center=False,
@@ -35,6 +41,7 @@ class DriveDataGenerator(image.ImageDataGenerator):
                  rotation_range,
                  width_shift_range,
                  height_shift_range,
+                 None,
                  shear_range,
                  zoom_range,
                  channel_shift_range,
@@ -60,7 +67,7 @@ class DriveDataGenerator(image.ImageDataGenerator):
             save_format=save_format,
             zero_drop_percentage=zero_drop_percentage,
             roi=roi)
-    
+
     def random_transform_with_states(self, x, seed=None):
         """Randomly augment a single image tensor.
         # Arguments
@@ -140,12 +147,12 @@ class DriveDataGenerator(image.ImageDataGenerator):
                                      img_channel_axis)
         if self.horizontal_flip:
             if np.random.random() < 0.5:
-                x = image.flip_axis(x, img_col_axis)
+                x = flip_axis(x, img_col_axis)
                 is_image_horizontally_flipped = True
 
         if self.vertical_flip:
             if np.random.random() < 0.5:
-                x = image.flip_axis(x, img_row_axis)
+                x = flip_axis(x, img_row_axis)
                 
         if self.brighten_range != 0:
             random_bright = np.random.uniform(low = 1.0-self.brighten_range, high=1.0+self.brighten_range)
